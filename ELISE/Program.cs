@@ -5,27 +5,25 @@ namespace LIZa
     {
         static void Main(string[] args)
         {
+            var Elise = ELISE.ELIZA.Eliza.FromScript(@".\PseudoDoctor.txt");
+
             string? input = null;
 
             while (input != "quit")
             {
-                if (input != null)
+                if (input != null && Elise.Respond(input) is string response && response != null)
                 {
-                    if (TikTok.Weilbyte.API.TextWithinLimit(input))
+                    Console.WriteLine(response);
+
+                    if (TikTok.Weilbyte.API.TextWithinLimit(response))
                     {
-                        TikTok.Weilbyte.API.SpeakText(input);
-                    }
-                    else
-                    {
-                        Console.WriteLine("(That text is too long!)");
+                        TikTok.Weilbyte.API.SpeakText(response);
                     }
                 }
 
                 Console.Write("> ");
                 input = Console.ReadLine();
             }
-
-            System.Console.ReadKey(true);
         }
     }
 }
