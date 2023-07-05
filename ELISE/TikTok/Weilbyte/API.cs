@@ -26,6 +26,8 @@ namespace LIZa.TikTok.Weilbyte
             Client.BaseAddress = new Uri(Endpoint);
         }
 
+        public static void Initialize() { }
+
         public static bool TextWithinLimit(string text)
         {
             return new UTF8Encoding().GetByteCount(text) <= Text_Size_Limit;
@@ -78,24 +80,32 @@ namespace LIZa.TikTok.Weilbyte
 
         }
 
-        public static void SpeakText(string text)
+        public static void SpeakText(string text, out int duration)
         {
-            var request = GetSpeech(text);
-            byte[] sound = request.Result;
+            duration = 0;
 
-            using (MemoryStream ms = new(sound))
+            if (!String.IsNullOrWhiteSpace(text))
             {
-                using (var audio = new NAudio.Wave.StreamMediaFoundationReader(ms))
-                using (var outputDevice = new NAudio.Wave.WaveOutEvent())
+                var request = GetSpeech(text);
+                byte[] sound = request.Result;
+
+                using (MemoryStream ms = new(sound))
                 {
-                    outputDevice.Init(audio);
-                    outputDevice.Play();
-                    while (outputDevice.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                    using (var audio = new NAudio.Wave.StreamMediaFoundationReader(ms))
+                    using (var outputDevice = new NAudio.Wave.WaveOutEvent())
                     {
-                        Thread.Sleep(500);
+                        duration = audio.TotalTime.Seconds / 2 * 500;
+
+                        outputDevice.Init(audio);
+                        outputDevice.Play();
+                        while (outputDevice.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                        {
+                            Thread.Sleep(500);
+                        }
                     }
                 }
             }
+
         }
 
     }

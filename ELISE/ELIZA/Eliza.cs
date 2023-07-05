@@ -4,10 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using System.Text.RegularExpressions;
+
 namespace ELISE.ELIZA
 {
+    /// <summary>
+    /// Adaptation of the BASIC implementation of ELIZA as published in Big Computer Games (1984)
+    /// </summary>
     public class Eliza
     {
+        public static readonly string[] QuitterTalk = new string[]
+        {
+            "bye", "farewell", "quit", "exit", "shut"
+        };
+
+        private static readonly string[] Delimiters = new string[]
+        {
+            ".", ",", "!", "?", "but", 
+        };
+
+        private static string CondDelimiters = String.Join("|", Delimiters.Select(x => (x.Length > 1 ? $"\b{x}\b" : $"\\{x}")));
+        private static readonly Regex Splitter = new Regex(@$"({CondDelimiters}|\b[^\s]+\b)");
+
+        private Queue<string> InputMemory = new();
+
         public static Eliza FromScript(string path)
         {
             return new Eliza()
@@ -16,54 +36,226 @@ namespace ELISE.ELIZA
             };
         }
 
+        private int SecretLimit = 1;
+
         private Script Script = new();
 
-        /// <summary>
-        /// Check every word of the given text to see if it can be replaced according to the 
-        /// </summary>
-        private string Reflect(string text)
+        private bool TryCreateMemory(Response resp)
         {
-            string[] words = text.ToLower().Split(' ').Select(x => x.Trim(",.:;\'\"!?".ToArray())).ToArray();
+            Response newResponse = new(resp.Text, resp.ParentScript, resp.LogicLog);
+            newResponse.UpdateKeyword();
 
-            for (int i = 0; i < words.Length; ++i)
+            if (this.Script.MemoryRule != null)
             {
-                if (this.Script.Reflexives.TryGetValue(words[i], out string? mirror) && mirror != null)
+                resp.LogicLog.AppendLine("Attempting to memorize input...");
+
+                int transIndex = Hollerith.Hash(Hollerith.ChunkAsBCD(resp.SplitWords.Last()), 2);
+                Transformation memTransform = this.Script.MemoryRule.Transforms.First();
+
+                if (memTransform.ReassemblyRules.Count >= transIndex
+                    && memTransform.TryApply(ref newResponse, transIndex) == Transformation.Status.Succ)
                 {
-                    words[i] = mirror;
+                    this.InputMemory.Enqueue(newResponse.Text);
+                    return true;
                 }
             }
 
-            return String.Join(" ", words);
+            return false;
         }
 
-        public string? Respond(string text)
+        private void IncrementLimit()
         {
-            foreach(var respPair in this.Script.Responses)
+            this.SecretLimit = this.SecretLimit % 4 + 1;
+        }
+
+        public string ProduceGreeting()
+        {
+            Response resp = new Response("hello", this.Script, new StringBuilder());
+            if (this.Script.Rules.TryGetValue(resp.RawInput, out Rule? r) && r != null)
             {
-                var match = System.Text.RegularExpressions.Regex.Match(text, respPair.Key);
-
-                if (match != null && match.Success)
+                if (r.TryApply(ref resp) == Transformation.Status.Succ)
                 {
-                    string response = respPair.Value[Random.Shared.Next(respPair.Value.Count)];
+                    return resp.Text.ToUpper();
+                }
+            }
 
-                    while (response.Contains('%'))
+            return "how do you do? please state your problem.".ToUpper();
+        }
+
+        public string CreateClassicalResponse(string text, out StringBuilder logicLog)
+        {
+
+            Response resp = new Response(text.ToLower().Trim(), this.Script, new StringBuilder());
+            logicLog = resp.LogicLog;
+
+            IncrementLimit();
+            logicLog.AppendLine($"(Limit = {this.SecretLimit})");
+
+
+            IEnumerable<string> allWords = Splitter.Matches(resp.RawInput).Select(x => x.Value);//.Reverse();
+            string[] words = Array.Empty<string>();
+
+            //while (allWords.Any())
+            //{
+            //    IEnumerable<string> testClause = allWords.TakeWhile(x => !Delimiters.Contains(x)).ToArray();
+            //    allWords = allWords.SkipWhile(x => !Delimiters.Contains(x)).Skip(1);
+            //    resp.Text = String.Join(' ', testClause.Reverse());
+
+            //    if (!String.IsNullOrWhiteSpace(resp.Text))
+            //    {
+            //        logicLog.AppendLine($"Read: {resp.Text}");
+            //    }
+
+            //    //memorize prior clauses of the sentence as we consume new ones. the last goes unmemorized for now
+            //    if (allWords.Any())
+            //    {
+            //        InputMemory.Push(resp.Text);
+            //    }
+            //}
+
+            while (allWords.Any())
+            {
+                resp.Text = String.Join(' ', allWords.TakeWhile(x => !Delimiters.Contains(x)));
+                allWords = allWords.SkipWhile(x => !Delimiters.Contains(x)).Skip(1);
+
+                //keep only the first clause to contain a keyword
+                if (this.Script.GetKeywordMatches(resp.Text).Any())
+                {
+                    logicLog.AppendLine($"Read: {resp.Text}");
+                    break;
+                }
+            }
+
+            //use a custom comparer to have it sort biggest score to least
+            PriorityQueue<KeyValuePair<string, Rule>, Rank> keyStack = new(Comparer<Rank>.Create((x, y) => y.Priority.CompareTo(x.Priority) * 10 + y.Owner.Keywords.Last().CompareTo(x.Owner.Keywords.Last())));
+
+            foreach (var kvp in this.Script.GetKeywordMatches(resp.Text))
+            {
+                if (kvp.Value.Transforms.Any())
+                {
+                    keyStack.Enqueue(kvp, kvp.Value.Ranking);
+                }
+
+                //if (resp.ParentScript.KeywordSubstitutions.TryGetValue(kvp.Key, out string? sub) && sub != null)
+                //{
+                //    resp.Subs.Add(kvp.Key, sub);
+                //}
+            }
+
+            //slapdash way of checking if the stack is empty
+            //if it is, try to pull something out of the conversational memory
+            //if (this.Script.MemoryRule != null && !keyStack.TryPeek(out var _, out var _))
+            //{
+            //    while(this.InputMemory.TryDequeue(out string? mem) && mem != null)
+            //    {
+            //        logicLog.AppendLine($"Engaging memory: {mem}");
+
+            //        resp.Text = mem;
+            //        resp.UpdateKeyword();
+            //        Transformation.Status attempt = this.Script.MemoryRule.TryApply(ref resp);
+
+            //        if (attempt == Transformation.Status.Succ)
+            //        {
+            //            return resp.Text;
+            //            //break;
+            //        }
+            //        else if (attempt == Transformation.Status.Link && resp.Keyword != null)
+            //        {
+            //            keyStack.Enqueue(new (resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.Max); //arbitrary priority since the stack was empty to begin with
+            //            break; //continue on as normal with our new keyword rule
+            //        }
+            //        else if (attempt == Transformation.Status.Prep && resp.Keyword != null)
+            //        {
+            //            logicLog.AppendLine($"Modified input: {resp.Text}");
+
+            //            keyStack.Enqueue(new(resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.Max);
+            //            break;
+            //        }
+            //    }
+            //}
+
+            //don't memorize the new input until after the memory check
+            //to avoid an infinite loop of memorizing and recalling the same input
+            //this.InputMemory.Push(resp.Text);
+            this.TryCreateMemory(resp);
+
+            if (!keyStack.TryPeek(out var _, out var _) && this.InputMemory.Any())
+            {
+                logicLog.AppendLine($"No applicable keywords");
+                logicLog.AppendLine($"Engaging memory...");
+
+                if (this.SecretLimit == 4 && this.InputMemory.TryDequeue(out string? mem) && mem != null)
+                {
+                    return mem;
+                }
+                else
+                {
+                    if (this.SecretLimit != 4)
                     {
-                        int placeHolderIndex = response.IndexOf('%');
-                        int placeHolderValue = int.Parse(response[placeHolderIndex + 1].ToString());
-
-                        string replacement = this.Reflect(match.Groups[placeHolderValue].Value);
-
-                        response = response.Replace($"%{placeHolderValue}", replacement);
+                        logicLog.AppendLine($"... but the limit ({this.SecretLimit}) isn't equal to 4");
                     }
+                    else
+                    {
+                        logicLog.AppendLine($"... but no memories were found");
+                    }
+                }
+            }
+            else
+            {
+                logicLog.AppendLine($"Found {keyStack.Count} applicable keyword/s");
+            }
 
-                    if (response[^2..] == "?.") response = response[..^2] + ".";
-                    if (response[^2..] == "??") response = response[..^2] + "?";
+            //attempt to apply rules until one sticks
+            while (keyStack.TryDequeue(out KeyValuePair<string, Rule> kvp, out Rank r))
+            {
+                //this.InputMemory.Enqueue(resp.Text);
 
-                    return response.ToUpper();
+                logicLog.AppendLine($"Applying new rule...");
+
+                resp.UpdateKeyword(kvp.Key);
+                Transformation.Status attempt = kvp.Value.TryApply(ref resp);
+
+                if (attempt == Transformation.Status.Succ)
+                {
+                    return resp.Text;
+                }
+                else if (attempt == Transformation.Status.Link && resp.Keyword != null)
+                {
+                    keyStack.Enqueue(new(resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.MoreThan(r)); //+1 to make sure it's above all the rest
+                }
+                else if (attempt == Transformation.Status.Prep && resp.Keyword != null)
+                {
+                    logicLog.AppendLine($"Modified input: {resp.Text}");
+
+                    keyStack.Enqueue(new(resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.MoreThan(r));
                 }
             }
 
-            return null;
+            logicLog.AppendLine("Resorting to None rule...");
+
+            if (this.Script.NoneRule != null)
+            {
+                resp.UpdateKeyword();
+                this.Script.NoneRule.TryApply(ref resp);
+            }
+            else
+            {
+                return new string[]
+                {
+                    "please, continue.",
+                    "hmmm.",
+                    "go on, please",
+                    "i see."
+                }[this.SecretLimit].ToUpper();
+            }
+
+
+            return resp.Text;
         }
+
+        //public string CreateModernResponse(string input)
+        //{
+
+        //}
     }
 }
