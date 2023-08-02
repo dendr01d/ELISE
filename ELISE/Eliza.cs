@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
 
-namespace ELISE.ELIZA
+namespace ELISE
 {
-    /// <summary>
-    /// Adaptation of the BASIC implementation of ELIZA as published in Big Computer Games (1984)
-    /// </summary>
     public class Eliza
     {
         public static readonly string[] QuitterTalk = new string[]
@@ -20,10 +17,10 @@ namespace ELISE.ELIZA
 
         private static readonly string[] Delimiters = new string[]
         {
-            ".", ",", "!", "?", "but", 
+            ".", ",", "!", "?", "but",
         };
 
-        private static string CondDelimiters = String.Join("|", Delimiters.Select(x => (x.Length > 1 ? $"\b{x}\b" : $"\\{x}")));
+        private static string CondDelimiters = string.Join("|", Delimiters.Select(x => x.Length > 1 ? $"\b{x}\b" : $"\\{x}"));
         private static readonly Regex Splitter = new Regex(@$"({CondDelimiters}|\b[^\s]+\b)");
 
         private Queue<string> InputMemory = new();
@@ -45,17 +42,17 @@ namespace ELISE.ELIZA
             Response newResponse = new(resp.Text, resp.ParentScript, resp.LogicLog);
             newResponse.UpdateKeyword();
 
-            if (this.Script.MemoryRule != null)
+            if (Script.MemoryRule != null)
             {
                 resp.LogicLog.AppendLine("Attempting to memorize input...");
 
                 int transIndex = Hollerith.Hash(Hollerith.ChunkAsBCD(resp.SplitWords.Last()), 2);
-                Transformation memTransform = this.Script.MemoryRule.Transforms.First();
+                Transformation memTransform = Script.MemoryRule.Transforms.First();
 
                 if (memTransform.ReassemblyRules.Count >= transIndex
                     && memTransform.TryApply(ref newResponse, transIndex) == Transformation.Status.Succ)
                 {
-                    this.InputMemory.Enqueue(newResponse.Text);
+                    InputMemory.Enqueue(newResponse.Text);
                     return true;
                 }
             }
@@ -65,13 +62,13 @@ namespace ELISE.ELIZA
 
         private void IncrementLimit()
         {
-            this.SecretLimit = this.SecretLimit % 4 + 1;
+            SecretLimit = SecretLimit % 4 + 1;
         }
 
         public string ProduceGreeting()
         {
-            Response resp = new Response("hello", this.Script, new StringBuilder());
-            if (this.Script.Rules.TryGetValue(resp.RawInput, out Rule? r) && r != null)
+            Response resp = new Response("hello", Script, new StringBuilder());
+            if (Script.Rules.TryGetValue(resp.RawInput, out Rule? r) && r != null)
             {
                 if (r.TryApply(ref resp) == Transformation.Status.Succ)
                 {
@@ -85,11 +82,11 @@ namespace ELISE.ELIZA
         public string CreateClassicalResponse(string text, out StringBuilder logicLog)
         {
 
-            Response resp = new Response(text.ToLower().Trim(), this.Script, new StringBuilder());
+            Response resp = new Response(text.ToLower().Trim(), Script, new StringBuilder());
             logicLog = resp.LogicLog;
 
             IncrementLimit();
-            logicLog.AppendLine($"(Limit = {this.SecretLimit})");
+            logicLog.AppendLine($"(Limit = {SecretLimit})");
 
 
             IEnumerable<string> allWords = Splitter.Matches(resp.RawInput).Select(x => x.Value);//.Reverse();
@@ -115,11 +112,11 @@ namespace ELISE.ELIZA
 
             while (allWords.Any())
             {
-                resp.Text = String.Join(' ', allWords.TakeWhile(x => !Delimiters.Contains(x)));
+                resp.Text = string.Join(' ', allWords.TakeWhile(x => !Delimiters.Contains(x)));
                 allWords = allWords.SkipWhile(x => !Delimiters.Contains(x)).Skip(1);
 
                 //keep only the first clause to contain a keyword
-                if (this.Script.GetKeywordMatches(resp.Text).Any())
+                if (Script.GetKeywordMatches(resp.Text).Any())
                 {
                     logicLog.AppendLine($"Read: {resp.Text}");
                     break;
@@ -129,7 +126,7 @@ namespace ELISE.ELIZA
             //use a custom comparer to have it sort biggest score to least
             PriorityQueue<KeyValuePair<string, Rule>, Rank> keyStack = new(Comparer<Rank>.Create((x, y) => y.Priority.CompareTo(x.Priority) * 10 + y.Owner.Keywords.Last().CompareTo(x.Owner.Keywords.Last())));
 
-            foreach (var kvp in this.Script.GetKeywordMatches(resp.Text))
+            foreach (var kvp in Script.GetKeywordMatches(resp.Text))
             {
                 if (kvp.Value.Transforms.Any())
                 {
@@ -177,22 +174,22 @@ namespace ELISE.ELIZA
             //don't memorize the new input until after the memory check
             //to avoid an infinite loop of memorizing and recalling the same input
             //this.InputMemory.Push(resp.Text);
-            this.TryCreateMemory(resp);
+            TryCreateMemory(resp);
 
-            if (!keyStack.TryPeek(out var _, out var _) && this.InputMemory.Any())
+            if (!keyStack.TryPeek(out var _, out var _) && InputMemory.Any())
             {
                 logicLog.AppendLine($"No applicable keywords");
                 logicLog.AppendLine($"Engaging memory...");
 
-                if (this.SecretLimit == 4 && this.InputMemory.TryDequeue(out string? mem) && mem != null)
+                if (SecretLimit == 4 && InputMemory.TryDequeue(out string? mem) && mem != null)
                 {
                     return mem;
                 }
                 else
                 {
-                    if (this.SecretLimit != 4)
+                    if (SecretLimit != 4)
                     {
-                        logicLog.AppendLine($"... but the limit ({this.SecretLimit}) isn't equal to 4");
+                        logicLog.AppendLine($"... but the limit ({SecretLimit}) isn't equal to 4");
                     }
                     else
                     {
@@ -221,22 +218,22 @@ namespace ELISE.ELIZA
                 }
                 else if (attempt == Transformation.Status.Link && resp.Keyword != null)
                 {
-                    keyStack.Enqueue(new(resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.MoreThan(r)); //+1 to make sure it's above all the rest
+                    keyStack.Enqueue(new(resp.Keyword, Script.Rules[resp.Keyword]), Rank.MoreThan(r)); //+1 to make sure it's above all the rest
                 }
                 else if (attempt == Transformation.Status.Prep && resp.Keyword != null)
                 {
                     logicLog.AppendLine($"Modified input: {resp.Text}");
 
-                    keyStack.Enqueue(new(resp.Keyword, this.Script.Rules[resp.Keyword]), Rank.MoreThan(r));
+                    keyStack.Enqueue(new(resp.Keyword, Script.Rules[resp.Keyword]), Rank.MoreThan(r));
                 }
             }
 
             logicLog.AppendLine("Resorting to None rule...");
 
-            if (this.Script.NoneRule != null)
+            if (Script.NoneRule != null)
             {
                 resp.UpdateKeyword();
-                this.Script.NoneRule.TryApply(ref resp);
+                Script.NoneRule.TryApply(ref resp);
             }
             else
             {
@@ -246,16 +243,11 @@ namespace ELISE.ELIZA
                     "hmmm.",
                     "go on, please",
                     "i see."
-                }[this.SecretLimit].ToUpper();
+                }[SecretLimit].ToUpper();
             }
 
 
             return resp.Text;
         }
-
-        //public string CreateModernResponse(string input)
-        //{
-
-        //}
     }
 }

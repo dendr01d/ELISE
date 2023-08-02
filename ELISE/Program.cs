@@ -1,45 +1,42 @@
 ﻿
 using System.Text;
+using ELISE;
+using ELISE.Weilbyte;
 
 namespace LIZa
 {
     internal class Program
     {
         private static Random RNG = new Random();
+        private static bool ShowLogic = false;
 
         static void Main(string[] args)
         {
-            var Elise = ELISE.ELIZA.Eliza.FromScript(@".\TikTokDoctor.txt");
+            var Elise = Eliza.FromScript(@".\TikTokDoctor.txt");
 
-            if (ELISE.ELIZA.ScriptReader.Errors.Any())
+            if (ScriptReader.Errors.Any())
             {
                 Console.WriteLine("Found errors in script -->");
 
-                foreach(string line in ELISE.ELIZA.ScriptReader.Errors)
+                foreach(string line in ScriptReader.Errors)
                 {
                     Console.WriteLine(line);
                 }
 
                 Console.WriteLine("\nPress any key to continue...");
                 Console.ReadKey(true);
+                Environment.Exit(1);
             }
 
-            TikTok.Weilbyte.API.Initialize();
-            ELISE.ELIZA.Hollerith.Initialize();
+            API.Initialize();
+            Hollerith.Initialize();
 
             string? input = null;
 
-            int index = 0;
-            string[] inputs = GetTestInputs();
+            //int index = 0;
+            //string[] inputs = GetTestInputs();
 
-            ConsoleKeyInfo? key = null;
-
-            while (key == null || (key is ConsoleKeyInfo k && k.KeyChar != 'b'))
-            {
-                key = Console.ReadKey(true);
-            }
-
-            while (input == null || !ELISE.ELIZA.Eliza.QuitterTalk.Any(x => input.Contains(x)))
+            while (input == null || !Eliza.QuitterTalk.Any(x => input.Contains(x)))
             {
                 StringBuilder explainer = new();
 
@@ -47,10 +44,10 @@ namespace LIZa
                     ? Elise.ProduceGreeting()
                     : Elise.CreateClassicalResponse(input, out explainer);
 
-                if (true)
+                if (ShowLogic && explainer.ToString() is string logic && !String.IsNullOrWhiteSpace(logic))
                 {
                     Console.WriteLine();
-                    Console.WriteLine(explainer.ToString());
+                    Console.WriteLine(logic);
                 }
 
                 int voiceDuration = 1000;
@@ -59,9 +56,9 @@ namespace LIZa
                 {
                     Task.Run(() =>
                     {
-                        if (TikTok.Weilbyte.API.TextWithinLimit(response))
+                        if (API.TextWithinLimit(response))
                         {
-                            TikTok.Weilbyte.API.SpeakText(response, out voiceDuration);
+                            API.SpeakText(response, out voiceDuration);
                         }
                     });
                 }
@@ -73,16 +70,22 @@ namespace LIZa
                 SlowPrint(response.ToUpper());
                 //Console.WriteLine(response.ToUpper());
 
-                Console.Write("> ");
+                input = null;
 
-                System.Threading.Thread.Sleep(500);
-                //Console.WriteLine(inputs[index]);
-                SlowPrint(inputs[index], 100, true);
-                System.Threading.Thread.Sleep(250);
+                while (String.IsNullOrWhiteSpace(input))
+                {
+                    Console.Write("> ");
+                    input = Console.ReadLine();
+                }
 
-                input = inputs[index]; // Console.ReadLine();
+                //System.Threading.Thread.Sleep(500);
+                ////Console.WriteLine(inputs[index]);
+                //SlowPrint(inputs[index], 100, true);
+                //System.Threading.Thread.Sleep(250);
 
-                index++;
+                //input = inputs[index]; // Console.ReadLine();
+
+                //index++;
             }
 
             Console.ReadKey(true);
@@ -98,7 +101,7 @@ namespace LIZa
             {
                 if (useRandom)
                 {
-                    System.Threading.Thread.Sleep(pauseDuration + RNG.Next(-1 * pauseDuration / 10, pauseDuration / 5));
+                    System.Threading.Thread.Sleep(pauseDuration + RNG.Next(-1 * pauseDuration / 5, pauseDuration / 5));
                 }
                 else
                 {

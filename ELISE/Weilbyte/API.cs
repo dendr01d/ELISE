@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Newtonsoft;
 
-namespace LIZa.TikTok.Weilbyte
+namespace ELISE.Weilbyte
 {
     internal static class API
     {
@@ -84,7 +84,7 @@ namespace LIZa.TikTok.Weilbyte
         {
             duration = 0;
 
-            if (!String.IsNullOrWhiteSpace(text))
+            if (!string.IsNullOrWhiteSpace(text))
             {
                 var request = GetSpeech(text);
                 byte[] sound = request.Result;

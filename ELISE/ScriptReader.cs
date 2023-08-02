@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using System.Text.RegularExpressions;
 
-namespace ELISE.ELIZA
+namespace ELISE
 {
     public static class ScriptReader
     {
@@ -28,7 +28,7 @@ namespace ELISE.ELIZA
         public static Script ReadFromFile(string path)
         {
             Script output = new Script();
-            IEnumerable<string> lines = File.ReadLines(path).Append(String.Empty);
+            IEnumerable<string> lines = File.ReadLines(path).Append(string.Empty);
 
             //first do a quick pass to gather all of the tag info
             //as well as all of the keyword names
@@ -62,15 +62,6 @@ namespace ELISE.ELIZA
                     {
                         output.KeywordSubstitutions.Add(word1, word2);
                     }
-
-                    //SwapPair newPair = new()
-                    //{
-                    //    Start = pairOneMatch[1].Value.ToLower().Trim(),
-                    //    End = pairOneMatch[2].Value.ToLower().Trim(),
-                    //    LineIndex = lineIndex
-                    //};
-
-                    //output.Pairs.Add(newPair);
                 }
                 else if (TryMatch(RGX_Pair_TwoWay, line, out var pairTwoMatch))
                 {
@@ -94,16 +85,6 @@ namespace ELISE.ELIZA
                     {
                         output.KeywordSubstitutions.Add(word2, word1);
                     }
-
-                    //SwapPair newPair = new()
-                    //{
-                    //    Start = pairTwoMatch[1].Value.ToLower().Trim(),
-                    //    End = pairTwoMatch[2].Value.ToLower().Trim(),
-                    //    LineIndex = lineIndex
-                    //};
-
-                    //output.Pairs.Add(newPair);
-                    //output.Pairs.Add(newPair.Invert());
                 }
                 else if (TryMatch(RGX_PreKeyword, line, out var precursorMatch))
                 {
@@ -122,7 +103,7 @@ namespace ELISE.ELIZA
             lineIndex = 1;
             bool panicState = false;
 
-            foreach(string line in lines.Select(x => x.ToLower()))
+            foreach (string line in lines.Select(x => x.ToLower()))
             {
                 if (TryMatch(RGX_TAGLINE, line, out var _)
                     || TryMatch(RGX_Pair_OneWay, line, out var _)
@@ -165,7 +146,7 @@ namespace ELISE.ELIZA
                 {
                     string response = line.ToLower().Trim();
 
-                    if (Reassembly.IsPre(response, out string _, out string link) && !validKeywords.Contains(link))
+                    if (Reassembly.IsLink(response, out string _, out string link) && !validKeywords.Contains(link))
                     {
                         panicState = true;
                         Errors.Add($"Link to non-existent keyword in response on line {lineIndex}");
@@ -175,7 +156,7 @@ namespace ELISE.ELIZA
                         activeTransform.ReassemblyRules.Add(response);
                     }
                 }
-                else if (!String.IsNullOrWhiteSpace(line) && line[0] != '#') //check for comments last
+                else if (!string.IsNullOrWhiteSpace(line) && line[0] != '#') //check for comments last
                 {
                     panicState = true;
                     Errors.Add($"Parsing error on line {lineIndex}");
@@ -212,7 +193,7 @@ namespace ELISE.ELIZA
 
             if (newRule != null)
             {
-                foreach(var key in newRule.Keywords)
+                foreach (var key in newRule.Keywords)
                 {
                     if (key == MemoryRuleName)
                     {

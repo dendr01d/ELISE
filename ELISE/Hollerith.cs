@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ELISE.ELIZA
+namespace ELISE
 {
-    internal class Hollerith
+    /// <summary>
+    /// Defines functions relating to the Hollerith character encoding used by the original ELIZA
+    /// </summary>
+    internal static class Hollerith
     {
         private static readonly char NullChar = (char)0x0;
         private static readonly byte HollerithUndefined = 0xFF; //64
@@ -32,6 +35,9 @@ namespace ELISE.ELIZA
             }
         }
 
+        /// <summary>
+        /// A null function that forces the class to call its static constructor.
+        /// </summary>
         public static void Initialize() { }
 
         private static bool IsDefined(char c)
@@ -46,21 +52,25 @@ namespace ELISE.ELIZA
         {
             if (n < 0 || n > 15)
             {
-                throw new ArgumentException("n not in (0, 15)");
+                throw new ArgumentException("n not in [0, 15]");
             }
 
             d &= 0x7FFFFFFFFUL;
             d *= d;
 
-            d >>= 35 - (n / 2);
+            d >>= 35 - n / 2;
 
-            return (int)(d & ((1UL << n) - 1));
+            return (int)(d & (1UL << n) - 1);
         }
 
+        /// <summary>
+        /// Translate the given string to a sequence of Hollerith characters, wherein each character is represented with 6 bits
+        /// </summary>
         public static ulong ChunkAsBCD(string s)
         {
             s = s.ToUpper();
 
+            //helper function that sequentially shifts the input string over 6 bits, then emplaces the new character at the end
             static ulong append(ulong input, char c)
             {
                 if (!IsDefined(c))
@@ -77,10 +87,15 @@ namespace ELISE.ELIZA
             ulong result = 0;
             int count = 0;
 
-            for (int c = ((s.Length - 1) / 6) * 6; c < s.Length; ++c, ++count)
+            //we're only interested in the last (s.Length % 6) characters
+            //use integer division to skip everything before that
+
+            for (int c = (s.Length - 1) / 6 * 6; c < s.Length; ++c, ++count)
             {
                 result = append(result, s[c]);
             }
+
+            //pad the result with spaces so we end up with a 6-character string 
 
             while (count < 6)
             {
