@@ -1,0 +1,388 @@
+#ELIZA Doctor script using custom syntax for (hopefully) improved readability
+
+belief := feel, think, believe, wish, imagine
+family := mom, mother, dad, father, sister, brother, sibling, wife, husband, child, children
+
+dont > don't
+cant > can't
+wont > won't
+am > are
+dreamed > dreamt
+your > my
+you were <> I was
+me > you
+you're <> I'm
+you are <> I am
+myself <> yourself
+I <> you
+my > your
+maybe > perhaps
+
+sorry::
+    "0":
+        there's no need to be sorry.
+        what are you saying sorry for?
+        why do you feel like you have to apologize?
+        For of the love of god stop with this "sorry" nonsense.
+
+remember::
+    "0 I remember 0":
+        are you like obsessed with %4?
+        that's just silly. what else do you remember?
+        what made you think of %4?
+        wait... what does this have to do with %4?
+        okay but what does %4 have to do with me?
+    "0 do you remember 0":
+        %5? Sorry, can you remind me again?
+        why is it my job to remember %?
+        what about %5...?
+        =what
+        So... %5, huh?
+        
+if::
+    "0 if 0":
+        for real though, do you think that %3?
+        %3? on god?
+        really, %2 %3?
+        
+dreamt::4
+    "0 I dreamt 0":
+        yikes, you must really like imagining %4?
+        would you say you have these fantasies about %4... often?
+        %4? bestie I'm not going to lie that's a little cringe.
+        =dream
+        @NewKey
+        
+dreams &
+dream::3
+    "0":
+        so like, do you think that dream means something?
+        you dream a lot, huh?
+        do you ever have dreams that are like, naughty?
+        that's... interesting? but that can't be the real problem, right?
+        @NewKey
+        
+alike &
+same::10
+    "0":
+        =_diff
+        
+certainly::
+    "0":
+        =yes
+        
+@memory::
+    "0 my 0":
+        I guess we can talk about your %3...
+        earlier you said your %3.
+        You sure like to talk about your %3.
+        wow you're really obsessed with your %3...
+        
+@none::
+    "0":
+        huh???
+        sorry, I didn't catch that.
+        tell me more?
+        I won't lie bestie, I don't know how to respond to that.
+
+maybe &
+perhaps::
+    "0":
+        bestie are you really sure?
+        you sound like you don't really know.
+        would it kill you to lighten up?
+        you aren't sure?
+        don't you know?
+
+name &
+names::15
+    "0":
+        you can skip the name business, it really doesn't matter to me.
+        enough with the names already, get to the point!
+        
+deutsch &
+francais &
+italiano &
+espanol::
+    "0":
+        uhhhh, in English please?
+
+hi &
+hey &
+greetings &
+good morning &
+good day &
+good evening &
+hello::
+    "0":
+        hey bestie what's up?
+        
+computer &
+computers &
+machine &
+machines::50
+    "0":
+        are you really into computers or something?
+        uhhhh sorry, I don't know anything about computers lol.
+        are computers part of your problem? are you being cyberbullied or something?
+        I'd rather just use my phone haha.
+        are you scared of machines...?
+        look pal, you're getting uncomfortably close to the truth here, and we both know you're better off letting it go, okay? okay.
+        
+am::
+    "0 am I 0":
+        are you %4? yeah probably, I guess.
+        I don't know, do you want to be %4?
+        what, do you want me to tell you that you're %4?
+        think about it though, would you really want to be %4?
+        =what
+    "0":
+        like, are you sure about that?
+        huh?
+        
+are::
+    "0 are you 0":
+        am I %4? ummm I'm neurodivergent and a minor and that's really none of your business.
+        what, like you want me to %4?
+        do you fantasize about me being %4 or something?
+        I guess I could be %4...?
+        =what
+    "0 are 0":
+        %3? they could be, I guess? are you into that idea?
+        should they not %3...?
+        what if they %3 though? lol.
+        sure, they %3, whatever floats your boat.
+        
+your::
+    "0 your 0":
+        ummm bestie weren't we talking about you?
+        maybe you should worry about your own %3?
+        my %3 is my own business, thank you very much.
+        you seem kind of obsessed with my %3... yikes!
+        
+was::
+    "0 was I 0":
+        I don't know, were you?
+        wait, you think you were %4? on god?
+        were you %4?
+        does it really matter if you were %4?
+        uhhh why should I know?
+        =what
+    "0 I was 0":
+        on god?
+        are you being for real right now?
+        say what you like, I think you're lying about being %4 though.
+    
+were::
+    "0 were you 0":
+        ummm what does it matter?
+        do I seem like a '%4' kind of person?
+        it's kind of creepy that you want to know.
+        let's say I was %4 -- then what? huh?
+        so what if I was %4? you're being kind of cringe right now.
+        
+you're::
+    "0 you're 0":
+        %1 you are %3 =you
+        
+I'm::
+    "0 I'm 0":
+        %1 I am %3 =I
+
+I've::
+    "0 I've 0":
+        %1 I have %3 =I
+
+I::
+    "0 I (* want need ) 0":
+        oh that's a big mood, I %3 %4 too.
+        so... you %3 %4?
+        manifesting %4 for you bestie!
+        what if you never get %4 though?
+        you seem a little obsessed with %4...
+        what does %3ing %4 have to do with anything?
+    "0 I am 0 (* sad unhappy depressed sick) 0":
+        wow, trauma-dumping much?
+        I think deep down we're all a little %5.
+        oof, it's got to suck being %5.
+        can you explain what made you %5?
+    "0 I am 0 (* happy elated glad better) 0":
+        that's great I'm so happy for you ☺
+        bestie you're being a little cringe right now...
+        no cap?
+        what, you're just %5 all of a sudden...?
+    "0 I was 0":
+        =was
+    "0 I \belief I 0":
+        you really think so? yikes...
+        it sounds like you're not really sure about that
+        do you really though?
+    "0 I \belief 0 you 0":
+        =you
+    "0 I am 0":
+        %4, huh? congrats, I guess...?
+        were you one of those kids who was just always %4?
+        %4? are you sure that's normal?
+        that's a mood.
+    "0 I (* cant can't cannot) 0":
+        I can't %4 either but you don't see me complaining, do you?
+        have you like, really tried though?
+        I bet I could %4 like right now? would that help you do it?
+        sorry, can't relate ☹
+    "0 I do not 0":
+        %1 I don't %2 =I
+    "0 I (* dont don't ) 0":
+        really though? seriously?
+        why don't you %4?
+        maybe you're just not trying hard enough lol.
+        oh, you don't...? kind of cringe...
+    "0 I feel 0":
+        oh, we're talking about feelings now, okay.
+        oh same, I feel %4 all the time lol
+        do you enjoy feeling %4?
+        does feeling %4 remind you of anything?
+    "0 I 0 you 0":
+        oh, wow, yikes.
+        ummm did I hear that right? you want to %3 me?
+        maybe you should worry about trying to %3 someone else first.
+        go %3 yourself!
+#    "I 0":
+#        why does it matter that you $2?
+#        I think you're oversharing a little, bestie...
+#        why would you tell me that?
+#        oh? you %2? does that make you feel important or something?
+        
+you::
+    "0 you remind me of 0":
+        =_diff
+    "0 you are 0":
+        I'm %4? well I think that you're %4, so there!
+        why does it matter if I'm %4?
+        maybe I am %4 -- it's really none of your business.
+        wasn't this supposed to be about you? maybe you secretly want to be %4, how about that?
+    "0 you 0 me":
+        trust me, I don't %3 you, I swear.
+        you like to think I %3 -- don't you?
+        what gives you that impression?
+        seriously, I %3 you? is that the best you could come up with?
+        I bet you just wish that I %3 you.
+        maybe I %3 you a little, so what?
+        did someone else tell you that I %3 you? who?!
+    "0 you 0":
+        ummm I think you need to take a step back and stay in your own lane.
+        your mom %3.
+        projecting much?
+        so what, do you feel better now that you've said that?
+        
+yes::
+    "0":
+        well alright then.
+        ok...?
+        if you say so.
+        yep.
+        
+no::
+    "0":
+        well someone's being a negative nancy
+        wow, not really loving these bad vibes...!
+        why not?
+        ummm okay?
+        
+my::2
+    "0 my 0 \family 0":
+        oh boy, we're bringing your family into things, now?
+        does your whole family %5 or just your %4?
+        do you have %4 issues or something?
+        does your %5 remind you of anything else?
+    "0 my 0":
+        your %3?
+        well at least you have that, right?
+        are you a material girl? living in a material world?
+        you think a lot about your %3?
+        
+can::
+    "0 can you 0":
+        %4? I don't really feel like it, sorry.
+        =what
+        why should I %4? why would I?
+        maybe you should worry about whether you can %4 yourself.
+    "0 can I 0":
+        you can do anything you put your mind to! maybe not %4 though.
+        have you always dreamed of %4?
+        maybe you can go to one of those special bootcamps for %4.
+        =what
+        
+what::
+    "0":
+        ummm, why do you ask?
+        it's kind of weird that you want to know.
+        what's your angle?
+        are you obsessed with this topic or something?
+        what answer do you expect?
+        what do you really think?
+        do you really believe there's an answer to that that would make you happy?
+        do you usually ask people that?
+        ummm, you go first! ☺
+        
+because::
+    "0":
+        sounds kinda sus...!
+        is that the best excuse you could come up with?
+        starting to sense a pattern here, not going to lie...
+        makes sense to me!
+        
+why::
+    "0 why don't you 0":
+        what makes you think I don't %5?
+        I'll %5 on my own time -- when I want to.
+        why don't you you %5 yourself?
+        you want me to %5? wow. yikes...
+        =what
+    "0 why can't I 0":
+        wait, do people normally %5?
+        probably because you aren't able to %5?
+        what, do you want me to teach you %5 or something?
+        I don't know, bestie, you tell me!
+        =what
+    "0":
+        =what
+        
+everyone &
+every one &
+every single one &
+every body &
+everybody::2
+    "0 (* everyone everybody nobody noone ) 0":
+        wow, %2?
+        I really doubt %2.
+        fine, can you give me an example?
+        really? prove it.
+        why don't we cut to the chase and talk about the specific person you mean.
+        okay but like, who?
+        oh, really? spill that tea!
+        bestie that's kind of vague...
+        who do you really mean?
+        
+always::1
+    "0":
+        prove it -- give me a single example.
+        when?
+        did you have a cringe moment?
+        really, always? wow...
+        
+like::10
+    "0 (* am are is were was ) 0 like 0":
+        =_diff
+    "0":
+        @newkey
+        
+_diff::
+    "0":
+        you think so?
+        yeah, sure, we're basically twins. lol.
+        why would you think that?
+        it's like they're connected by fate or something...
+        what does it matter?
+        are those things really related? I don't get it.
+        ummm, are you sure?
+        how?

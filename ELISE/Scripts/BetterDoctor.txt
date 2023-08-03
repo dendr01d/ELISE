@@ -1,0 +1,345 @@
+#ELIZA Doctor script using custom syntax for (hopefully) improved readability
+
+family := father, mother, sister, brother
+
+can::
+    "0 can you 3":
+        you believe I can 3, don't you?
+        =what
+        you want me to be able to 3?
+        perhaps you would like to be able to 3 yourself.
+    "0 can I 3":
+        whether or not you can 3 depends on you more than on me.
+        do you want to be able to 3?
+        perhaps you don't want to 3.
+        =what
+
+@None::
+    "0":
+        I'm not sure I understand you fully.
+        please, go on.
+        what does that suggest to you?
+        do you feel strongly about discussing such things?
+@Memory::
+    "0 my 2 is 4":
+        let's discuss further why your 2 is 4.
+        earlier you mentioned your 2 is 4.
+        does that have anything to do with the fact that your 2 is 4?
+    "0 my 2":
+        let's loop back to the subject of your 2.
+        perhaps this relates to your 2?
+    "0":
+        earlier you said something to the effect of '0' -- do you remember?
+
+sorry::
+    "0":
+        please don't apologize.
+        apologies are not necessary.
+        what feelings do you have when you apologize?
+        I've told you that apologies are not required.
+
+remember::5
+    "0 I remember 3":
+        do you often think of 3?
+        does thinking of 3 bring anything else to mind?
+        what else do you remember?
+        what made you remember 3 just now?
+        what in the present situation reminds you of 3?
+        what is the connection between you and 3?
+    "0 do you remember 4":
+        did you think I would forget 4?
+        why do you think I should recall 4 now?
+        what about 4?
+        =what
+        you mentioned 4.
+
+if::3
+    "0 if 2":
+        do you think it's likely that 2?
+        do you wish that 2?
+        what do you think about 2?
+        really, if 2?
+
+dreamed::4
+    "0 I dreamed 3":
+        really, 3?
+        have you ever fantasized about 3 while you were awake?
+        have you dreamed of 3 before?
+        =dream
+    
+dream::3
+    "0":
+        what does that dream suggest to you?
+        do you dream often?
+        what people appear in your dreams?
+        don't you believe that dream has something to do with your problem?
+    
+how::
+    "0":
+        =what
+        
+when::
+    "0":
+        =what
+        
+same::
+    "0":
+        =compareDiff
+
+maybe::
+    "0":
+        you don't seem quite certain.
+        why the uncertain tone?
+        can't you be more positive?
+        you aren't sure?
+        don't you know?
+    
+name::15
+    "0":
+        I am not interested in names.
+        I've told you before, I don't care about names -- please continue.
+    
+foreignLanguage::
+    "0":
+        I'm sorry, I only speak English.
+    
+hello::
+    "0":
+        how do you do? please state your problem.
+    
+computer::50
+    "0":
+        do computers worry you?
+        why do you mention computers?
+        what do you think machines have to do with your problem?
+        don't you think computers can help people?
+        what about machines worry you?
+        what do you think about machines?
+
+machine::50
+    "0":
+        =computer
+    
+am::
+    "0 am I 3":
+        do you believe you are %?
+        would you want to be %?
+        do you wish I would tell you that you are %?
+        what would it mean if you were %?
+        =what
+        why do you say 'am'?
+        I don't understand what you mean
+    
+are::
+    "0 are you 3":
+        why are you interested in whether I'm 3 or not?
+        would you prefer if I weren't 3?
+        perhaps I am 3 in your fantasies.
+        do you sometimes think I am 3?
+        =what
+    "0 are 2":
+        did you think they might not be 2?
+        would you like it if they were not 2?
+        what if they were not 2?
+        is it possible they are 2?
+    
+your::
+    "0 your 2":
+        why are you concerned over my 2?
+        what about your own 2?
+        are you worried about someone else's 2?
+        really, my 2?
+
+was::2
+    "0 was I 3":
+        what if you were 3?
+        do you think you were 3?
+        were you 3?
+        what would it mean if you were 3?
+        what does '3' suggest to you?
+        =what
+    "0 I was 3":
+        were you really?
+        why do you tell me you were 3 now?
+        perhaps I already knew you were 3.
+
+were::2
+    "0 were you 3":
+        would you like to believe I was 3?
+        what suggests that I was 3?
+        what do you think?
+        perhaps I was 3.
+        what if I had been 3?
+    
+I::
+    "0 I want 3":
+        what would it mean to you if you got 3?
+        why do you want 3?
+        suppose you got 3 soon, then what?
+        what if you never got 3?
+        what would getting 3 mean to you?
+        what does wanting 3 have to do with this discussion?
+    "0 I am $badfeeling 4":
+        I'm sorry to hear you are 3.
+        Do you think talking to me will help you to not be 3?
+        I'm sure it's not pleasant to be 3.
+        can you explain what made you 3?
+    "0 I am $goodfeeling 4":
+        how have I helped you to be 4?
+        has your treatment made you 4?
+        what makes you feel 4?
+        can you explain why you are suddenly 4?
+    "0 I was 3":
+        =was
+    "0 I $belief I 4":
+        do you really think so?
+        but you are not sure you %2 %3?
+        do you really doubt you %?
+    "0 I $belief you 4":
+        =you
+    "0 I am 3":
+        is it because you are 3 that you came to me?
+        how long have you been 3?
+        do you believe it normal to be 3?
+        do you enjoy being 3?
+    "0 I can't 3":
+        how do you know you can't 3?
+        have you tried?
+        perhaps you could 3 now.
+        do you really want to be able to 3?
+    "0 I don't 3":
+        don't you really 3?
+        why don't you 3?
+        do you wish to be able to 3?
+        does that trouble you?
+    "0 I feel 3":
+        tell me more about these feelings.
+        do you often feel 3?
+        do you enjoy feeling 3?
+        what does feeling 3 remind you of?
+    "0 I 2 you 4":
+        perhaps in your fantasy we 2 each other.
+        do you wish to 2 me?
+        you seem to need to 2 me.
+        do you 2 anyone else?
+    
+you::
+    "0 you remind me of 5":
+        =compareDiff
+    "0 you are 3":
+        what makes you think I am 3?
+        does it please you to believe I am 3?
+        do you sometimes wish you were 3?
+        perhaps you would like to be 3 yourself.
+    "0 you 2 me 4":
+        why do you think I 2 you?
+        you like to think I 2 you -- don't you?
+        what makes you think I 2 you?
+        really, I 2 you?
+        do you wish to believe I 2 you?
+        suppose I did 2 you -- what would that mean?
+        does someone else believe I 2 you?
+    "0 you 2":
+        we were discussing you -- not me.
+        oh, I 2?
+        you're not really talking about me, are you?
+        what are your feelings now?
+    
+yes::
+    "0":
+        you seem quite positive.
+        you are sure?
+        I see.
+        I understand.
+    
+no::
+    "0":
+        are you saying 'no' just to be negative?
+        you are being a bit negative.
+        why not?
+        why 'no'?
+
+my::2
+    "0 my 2 $family 4":
+        tell me more about your family.
+        who else in your family %4?
+        your %3?
+        what else comes to mind when you think of your %3?
+    "0 my 2":
+        your 2?
+        why do you say your 2?
+        does that suggest anything else which belongs to you?
+        is it important to you that your 3?
+    
+what::
+    "0":
+        why do you ask?
+        does that question interest you?
+        what is it that you really want to know?
+        are such questions often on your mind?
+        what answer would please you most?
+        what do you think?
+        what comes to mind when you ask that?
+        have you asked such questions before?
+        have you asked anyone else?
+    
+because::
+    "0":
+        is that the real reason?
+        don't any other reasons come to mind?
+        doesn't that reason seem to explain anything else?
+        what other reasons might there be?
+
+why::
+    "0 why don't you 4":
+        do you believe I don't 4?
+        perhaps I will 4 in good time.
+        should you 4 yourself?
+        you want me to 4?
+        =what
+    "0 why can't I 4":
+        do you think you should be able to 4?
+        do you want to believe to be able to 4?
+        do you believe this will help you to 4?
+        have you any idea why you can't 4?
+        =what
+    
+$people::2
+    "0 $people 2":
+        really, 1?
+        surely not 1.
+        can you think of anyone in particular?
+        who, for example?
+        you are thinking of a very special person.
+        who, may I ask?
+        someone special, perhaps?
+        you have a particular person in mind, don't you.
+        who do you think you're talking about?
+    
+always::1
+    "0":
+        can you think of a specific example?
+        when?
+        what incident are you thinking of?
+        really, always?
+    
+like::10
+    "0 am 2 like 4":
+        =compareDiff
+    "0 is 2 like 4":
+        =compareDiff
+    "0 are 2 like 4":
+        =compareDiff
+    "0 was 2 like 4":
+        =compareDiff
+    
+compareDiff::
+    "0":
+        in what way?
+        what resemblance do you see?
+        what does that similarity suggest to you?
+        what other connections do you see?
+        what do you suppose that resemblance means?
+        what is the connection, do you suppose?
+        could there really be some connection?
+        how?

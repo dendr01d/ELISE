@@ -1,0 +1,390 @@
+#ELIZA Doctor script using custom syntax for (hopefully) improved readability
+
+belief := feel, think, believe, wish, imagine
+family := mom, mother, dad, father, sister, brother, sibling, wife, husband, child, children
+
+dont > don't
+cant > can't
+wont > won't
+am > are
+dreamed > dreamt
+your > my
+you were <> I was
+me > you
+you're <> I'm
+you are <> I am
+myself <> yourself
+I <> you
+my > your
+maybe > perhaps
+
+sorry::
+    "0":
+        please don't apologize.
+        apologies are not necessary.
+        what feelings do you have when you apologize?
+        I've told you that apologies are not required.
+
+remember::
+    "0 I remember 0":
+        do you often think of %4?
+        does thinking of %4 bring anything else to mind?
+        what else do you remember?
+        why do you remember %4 just now?
+        what in the present situation reminds you of %4?
+        what is the connection between me and %4?
+    "0 do you remember 0":
+        did you think I would forget %5?
+        why do you think I should recall %5 now?
+        what about %5?
+        =what
+        you mentioned %5?
+        
+if::
+    "0 if 0":
+        do you think it's likely that %3?
+        do you wish that %3?
+        what do you think about %3?
+        really, %2 %3?
+        
+dreamt::4
+    "0 I dreamt 0":
+        really, %4?
+        have you ever fantasized about %4 while you were awake?
+        have you dreamed %4 before?
+        =dream
+        @NewKey
+        
+dreams &
+dream::3
+    "0":
+        wht does that dream suggest to you?
+        do you dream often?
+        what people appear in your dreams?
+        don't you believe that dream has something to do with your problem?
+        @NewKey
+        
+alike &
+same::10
+    "0":
+        =_diff
+        
+certainly::
+    "0":
+        =yes
+        
+@memory::
+    "0 my 0":
+        let's discuss further why your %3.
+        earlier you said your %3.
+        but your %3.
+        does that have anything to do with the fact that your %3?
+        
+@none::
+    "0":
+        I am not sure I understand you fully.
+        please, go on.
+        what does that suggest to you?
+        do you feel strongly about discussing such things?
+
+maybe &
+perhaps::
+    "0":
+        you don't seem quite certain.
+        why the uncertain tone?
+        can't you be more positive?
+        you aren't sure?
+        don't you know?
+
+name &
+names::15
+    "0":
+        I am not interested in names.
+        I've told you before, I don't care about names -- please continue.
+        
+deutsch &
+francais &
+italiano &
+espanol::
+    "0":
+        I am sorry, I speak only English.
+
+hi &
+hey &
+greetings &
+good morning &
+good day &
+good evening &
+hello::
+    "0":
+        how do you do? please state your problem.
+        
+computer &
+computers &
+machine &
+machines::50
+    "0":
+        do computers worry you?
+        why do you mention computers?
+        what do you think machines have to do with your problem?
+        don't you think computers can help people?
+        what about machines worries you?
+        what do you think about machines?
+        
+am::
+    "0 am I 0":
+        do you believe you are %4?
+        would you want to be %4?
+        you wish I would tell you that you are %4.
+        what would it mean if you were %4?
+        =what
+    "0":
+        why do you think so?
+        I don't understand that
+        
+are::
+    "0 are you 0":
+        why are you interested in whether I am %4 or not?
+        would you prefer if I weren't %4?
+        perhaps I am %4 in your fantasies.
+        do you sometimes think I am %4?
+        =what
+    "0 are 0":
+        did you think they might not be %3?
+        would you like it if they were not %3?
+        what if they were not %3?
+        it's possible they are %3.
+        
+your::
+    "0 your 0":
+        why are you concerned over my %3?
+        what about your own %3?
+        are you worried about someone else's %3?
+        really, my %3?
+        
+was::
+    "0 was I 0":
+        what if you were %4?
+        do you think you were %4?
+        were you %4?
+        what would it mean if you were %4?
+        what does '%4' suggest to you?
+        =what
+    "0 I was 0":
+        were you really?
+        why do you tell me you were %4 now?
+        perhaps I already knew you were %4.
+    
+were::
+    "0 were you 0":
+        would you like to believe I was %4?
+        what sugests that I was %4?
+        what do you think?
+        perhaps I was %4.
+        what if I had been %4?
+        
+you're::
+    "0 you're 0":
+        %1 you are %3 =you
+        
+I'm::
+    "0 I'm 0":
+        %1 I am %3 =I
+
+I've::
+    "0 I've 0":
+        %1 I have %3 =I
+
+I::
+    "0 I (* want need ) 0":
+        what would it mean to you if you got %4?
+        why do you %3 %4?
+        suppose ou got %4 soon -- then what?
+        what if you never get %4?
+        what would getting %4 mean to you?
+        what does %3ing %4 have to do with this discussion?
+    "0 I am 0 (* sad unhappy depressed sick) 0":
+        I am sorry to hear you are %5.
+        Do you think speaking with me will help you not to be %5?
+        I'm sure it's not pleasant to be %5.
+        can you explain what made you %5?
+    "0 I am 0 (* happy elated glad better) 0":
+        how have I helped you to be %5?
+        has your treatment made you %5?
+        what makes you %5 just now?
+        can you explain why you are suddenly %5?
+    "0 I was 0":
+        =was
+    "0 I \belief I 0":
+        do you really think so?
+        but you are not sure you %5?
+        do you really doubt you %5?
+    "0 I \belief 0 you 0":
+        =you
+    "0 I am 0":
+        is it because you are %4 that you came to me?
+        how long have you been %4?
+        do you believe it normal to be %4?
+        do you enjoy being %4?
+    "0 I (* cant can't cannot) 0":
+        how do you know that you can't %4?
+        have you tried?
+        perhaps you could do %4 now.
+        doyou really want to be able to %4?
+    "0 I do not 0":
+        %1 I don't %2 =I
+    "0 I (* dont don't ) 0":
+        don't you really %4?
+        why don't you %4?
+        do you wish to be able to %4?
+        does that trouble you?
+    "0 I feel 0":
+        tell me more about these feelings.
+        do you often feel %4?
+        do you enjoy feeling %4?
+        does feeling %4 remind you of anything?
+    "0 I 0 you 0":
+        perhaps in your fantasy we %3 each other.
+        do you wish to %3 me?
+        you seem to need to %3 me.
+        do you %3 anyone else?
+#    "I 0":
+#        you say you %2?
+#        can you elaborate on that?
+#        do you say you %2 for some special reason?
+#        that's quite interesting.
+        
+you::
+    "0 you remind me of 0":
+        =_diff
+    "0 you are 0":
+        what makes you think I'm %4?
+        does it please you to believe that I'm %4?
+        do you sometimes wish you were %4?
+        perhaps you would like to be %4.
+    "0 you 0 me":
+        why do you think I %3 you?
+        you like to think I %3 -- don't you?
+        what makes you think I %3 you?
+        really, I %3 you?
+        do you wish to believe I %3 you?
+        suppose I did %3 you -- what would that mean?
+        does someone else believe I %3 you?
+    "0 you 0":
+        we were discussing you -- not me.
+        oh, I %3?
+        you're not really talking about me, are you?
+        what are your feelings now?
+        
+yes::
+    "0":
+        you seem quite positive
+        you're sure?
+        I see.
+        I understand.
+        
+no::
+    "0":
+        are you saying 'no' just to be negative?
+        you're being a bit negative, don't you think?
+        why not?
+        why say 'no'?
+        
+my::2
+    "0 my 0 \family 0":
+        tell me more about your family.
+        who else in your family %5?
+        your %4?
+        what else comes to mind when you think of your %4?
+    "0 my 0":
+        your %3?
+        why do you mention your %3?
+        does that suggest anything else of yours?
+        is it important to you that your %3?
+        
+can::
+    "0 can you 0":
+        you believe I can %4, don't you?
+        =what
+        you want me to be able to %4?
+        perhaps you would liketo be able to %4 yourself.
+    "0 can I 0":
+        whether or not you can %4 depends more on you than on me.
+        do you want to be able to %4?
+        perhaps you don't really want to %4?
+        =what
+        
+what::
+    "0":
+        why do you ask?
+        does that question interest you?
+        what is it that you really want to know?
+        are such questions much on your mind?
+        what answer would please you most?
+        what do you think?
+        what comes to mind when you ask that?
+        have you asked such questions before?
+        have you asked anyone else?
+        
+because::
+    "0":
+        is that the real reason?
+        don't any other reasons come to mind?
+        does that reason seem to explain anything else?
+        what other reasons might there be?
+        
+why::
+    "0 why don't you 0":
+        do you believe I don't %5?
+        perhaps I will %5 in good time.
+        shoudl you %5 yourself?
+        you want me to %5?
+        =what
+    "0 why can't I 0":
+        do you think you shold be able to %5?
+        do wou want to be able to %5?
+        do you believe this will help you to %5?
+        do you have any ideas about why you can't 5?
+        =what
+    "0":
+        =what
+        
+everyone &
+every one &
+every single one &
+every body &
+everybody::2
+    "0 (* everyone everybody nobody noone ) 0":
+        really, %2?
+        surely not %2.
+        can you think of anyone in particular?
+        who, for example?
+        you are thinking of a very special person.
+        who, may I ask?
+        someone special, perhaps.
+        you have a particular person in mind, don't you?
+        who do you think you're talking about?
+        
+always::1
+    "0":
+        can you think of a specific example?
+        when?
+        what incident are you thinking of?
+        really, always?
+        
+like::10
+    "0 (* am are is were was ) 0 like 0":
+        =_diff
+    "0":
+        @newkey
+        
+_diff::
+    "0":
+        in what way?
+        what resemblance do you see?
+        what does that similarity suggest to you?
+        what other connections do you see?
+        what do you suppose that resemblance means?
+        what is the connection, do you suppose?
+        could there really be some connection?
+        how?
