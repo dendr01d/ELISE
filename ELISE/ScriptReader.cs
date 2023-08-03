@@ -225,15 +225,10 @@ namespace ELISE
 
         private static bool TryMatch(Regex rgx, string input, out GroupCollection groups)
         {
-            groups = default;
+            bool success = rgx.Match(input) is var match && match.Success;
+            groups = match.Groups;
 
-            if (rgx.Match(input) is var match && match != null && match.Success)
-            {
-                groups = match.Groups;
-                return true;
-            }
-
-            return false;
+            return success;
         }
     }
 }
