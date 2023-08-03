@@ -38,6 +38,11 @@ namespace ELISE
             return Rules.Where(x => Regex.IsMatch(input, $@"\b{x.Key}\b"));
         }
 
+        internal string? GetSubstitutionMatch(string input)
+        {
+            return KeywordSubstitutions.FirstOrDefault(x => Regex.IsMatch(input, $@"\b{x.Key}\b")).Value;
+        }
+
         /// <inheritdoc />
         public override string ToString()
         {
@@ -96,7 +101,7 @@ namespace ELISE
         {
             string[][] words = groupValues.Select(x => x.Split(' ')).ToArray();
 
-            for (int i = 0; i < words.Length; ++i)
+            for (int i = 0; i < groupValues.Length; ++i)
             {
                 for (int j = 0; j < words[i].Length; ++j)
                 {

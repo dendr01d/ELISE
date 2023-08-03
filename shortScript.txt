@@ -1,0 +1,26 @@
+#Brief file
+
+you're <> you are
+I'm <> I am
+
+hi &
+greetings &
+hello::
+	"0":
+		hello
+		hi
+		how are you
+
+I::
+	"I am 0":
+		you are %3?
+		You're %3.
+
+	"I am not 0":
+		you are not %4.
+		Are you sure you're not %4?
+
+you::
+	"you are 0":
+		I am %3?
+		why do you think so?

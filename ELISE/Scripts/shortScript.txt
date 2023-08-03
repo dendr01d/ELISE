@@ -1,0 +1,37 @@
+#Brief file
+
+you're > you are
+youre > you are
+I'm > I am
+im > I am
+
+hi &
+greetings &
+hello::
+	"0":
+		hello
+		hi
+		how are you
+
+I::
+	"0 I am 0":
+		you are %4?
+		You're %4.
+
+	"0 I am not 0":
+		you are not %5.
+		Are you sure you're not %4?
+
+you::
+	"0 you are 0":
+		I am %4?
+		why do you think so?
+
+@memory::
+	"0":
+		remember when you said "%1"?
+
+@none::
+	"0":
+		I don't understand...
+	

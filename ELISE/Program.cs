@@ -1,18 +1,17 @@
 ﻿
 using System.Text;
-using ELISE;
 using ELISE.Weilbyte;
 
-namespace LIZa
+namespace ELISE
 {
     internal class Program
     {
         private static Random RNG = new Random();
-        private static bool ShowLogic = false;
+        private static bool ShowLogic = true;
 
         static void Main(string[] args)
         {
-            var Elise = Eliza.FromScript(@".\TikTokDoctor.txt");
+            var Elise = Eliza.FromScript(@"..\..\..\Scripts\shortScript.txt");
 
             if (ScriptReader.Errors.Any())
             {
