@@ -117,7 +117,9 @@ namespace ELISE
                 {
                     ResolvePanic(lineIndex, ref panicState);
                     ValidateNewRule(ref output, ref activeRule, ref activeTransform);
-                    precursorKeywords.Add(precursorMatch[1].Value.ToLower().Trim());
+
+                    AddKeywordOrCategory(ref precursorKeywords, precursorMatch[1].Value, output);
+
                 }
                 else if (TryMatch(RGX_Keyword, line, out var keywordMatch))
                 {
@@ -127,10 +129,12 @@ namespace ELISE
                     int.TryParse(keywordMatch[2].Value, out int prio);
 
                     activeRule = new Rule();
+                    AddKeywordOrCategory(ref precursorKeywords, keywordMatch[1].Value, output);
                     activeRule.Keywords = new List<string>(precursorKeywords.ToArray());
                     activeRule.Ranking = new Rank(prio, lineIndex, activeRule);
 
-                    activeRule.Keywords.Add(keywordMatch[1].Value);
+                    //activeRule.Keywords.Add(keywordMatch[1].Value);
+
                     precursorKeywords = new();
                 }
                 else if (activeRule != null && TryMatch(RGX_Pattern, line, out var patternMatch))
@@ -181,6 +185,24 @@ namespace ELISE
             {
                 panicking = false;
                 Errors.Add($"Resuming read on line {lineIndex + 1}\n");
+            }
+        }
+
+        private static void AddKeywordOrCategory(ref List<string> keywords, string keyword, Script scr)
+        {
+            if (keyword[0] == '\\'
+                && scr.Tags.TryGetValue(keyword[1..], out List<string>? category)
+                && category != null
+                && category.Any())
+            {
+                foreach (string sub in category)
+                {
+                    keywords.Add(sub.ToLower().Trim());
+                }
+            }
+            else
+            {
+                keywords.Add(keyword.ToLower());
             }
         }
 

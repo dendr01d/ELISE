@@ -1,17 +1,54 @@
-#Brief file
+#Short example script
 
-you're > you are
-youre > you are
-I'm > I am
-im > I am
+# To start out with, lines beginning with hashes are comments and ignored by the script
+
+# this is a tagged category, forming a series of words represented by a single tag (color)
+# this can be used as a convenient shorthand for pattern matching
+# to refer to the tag, use the tag's name prepended by a backwards slash (\)
+
+color := red, orange, yellow, green, blue, indigo, violet
+
+# These are substitutions. When translating input to output and replacing
+# snippets of text according to placeholder index, these substitutions are applied
+# to correct for changes of pronoun/perspective/whatever
+
+# this first substitution is 2-way (<>), meaning it will always substitute one side with the other
+you are <> I am
+
+# these substitutions are one-way (>), they'll only replace the first word with the second, not vice versa
+you're > I am
+youre > I am
+I'm > you are
+im > you are
+
+# each "block" below is a rule
+# whitespace is only used as a delimiter, the tabbing is just to make it easier to read
+
+# each rule begins with a keyword
+# the application scans input text for keywords to determine which rules are applicable to it
+# several keywords can refer to the same rule when conjoined with & over multiple lines
+# the double colon (::) indicates the final keyword for the rule
+# the double colon may optionally be followed by a priority ranking
+# the application will preferentially choose to use rules with higher rankings when possible
+# if no number is specified, it's automatically assigned a ranking of zero
+# in the case of a tie, the program will choose whichever rule comes first in the script
 
 hi &
 greetings &
-hello::
+hello::10
 	"0":
-		hello
-		hi
-		how are you
+		what's up?
+		hi, how are you doing?
+		what are you doing?
+
+# after the keywords comes decomposition procedures, which are wrapped in quotes and followed by a single colon (:)
+# after the application selects a rule, it goes through the decomp procs in order until it finds one that applies
+#	(which means in case of similar rules, go from more to less specific with your patterns)
+# the procedure succeeds if the pattern matches the input text
+# numbers act as variable phrases containing a certain number of words
+#	for example, the decomp "I am 2" could match "I am happy today" and "I am very sleepy" but not "I am late"
+# the number zero indicates a non-specific number of words, and the pattern matching will greedily consume words
+# a rule can have multiple decomposition procedures
 
 I::
 	"0 I am 0":
@@ -22,10 +59,59 @@ I::
 		you are not %5.
 		Are you sure you're not %4?
 
+	"0 I (* think believe feel) 0":
+		really? %4?
+		why do you %3 that?
+
+# decomposition rules can also contain wildcard lists, represented by parentheticals beginning with asterisks (* ...)
+# this essentially means "match one of the following words"
+# it's like a tagged category for when it's not worth defining a whole tag
+
+# each line of plain text following a decomp procedure is a reassembly procedure
+# the application pseudo-randomly selects one of these to figure out how to format the output text
+# in many cases, a reassembly rule can simply be a statement that's a whole response unto itself
+# however, they can also include placeholder values, indicated by a percent sign (%) and a number
+# this tells the application to instead use the section of text referred to by the number as an index
+
+im &
+I'm::
+	"0 (* Im I'm) 0":
+		%1 I am %3 =I
+
+# reassembly procedures can contain linked, denoted by an equals sign (=)
+# this tells the application to pivot from the current rule to the one indicated by the link
+# a link can appear by itself or at the end of a regular reassembly procedure
+# in the latter case, the procedure is applied as normal, and the resulting text is then fed into the next rule
+
 you::
 	"0 you are 0":
 		I am %4?
 		why do you think so?
+
+youre &
+you're::
+	"0 (* youre you're) 0":
+		%1 you are %3 =you
+
+color::
+	"0":
+		what's your favorite color?
+
+\color::
+	"0 favorite color is 0":
+		I also like %5.
+	"0 favorite 0":
+		=color
+
+# there are three special keywords: @memory, @none, and @newkey
+# the first two are required to be present in a script
+# they tell the application how to behave in specific circumstances
+# the @memory rule dictates how the program records and recalls memorized input
+# the @none rule provides default decomp/reassembly procedures for when no other rule is valid
+
+# meanwhile, the @newkey keyword acts like a =link
+# when encountered in a reassembly rule, it causes the application to stop using the encapsulating rule
+# and to fall through to the next rule in order of precedencelue
 
 @memory::
 	"0":
