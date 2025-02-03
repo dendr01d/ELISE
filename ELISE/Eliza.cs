@@ -46,7 +46,7 @@ namespace ELISE
             {
                 resp.LogicLog.AppendLine("Attempting to memorize input...");
 
-                int transIndex = Hollerith.Hash(Hollerith.ChunkAsBCD(resp.SplitWords.Last()), 2);
+                int transIndex = Hollerith.Hash(resp.SplitWords.Last(), 2, 6);
                 Transformation memTransform = Script.MemoryRule.Transforms.First();
 
                 if (memTransform.ReassemblyRules.Count >= transIndex

@@ -1,5 +1,6 @@
 ﻿
 using System.Text;
+
 using ELISE.Weilbyte;
 
 namespace ELISE
@@ -11,13 +12,13 @@ namespace ELISE
 
         static void Main(string[] args)
         {
-            var Elise = Eliza.FromScript(@"..\..\..\Scripts\shortScript.txt");
+            var Elise = Eliza.FromScript(@"..\..\..\Scripts\EvenBetterDoctor.txt");
 
             if (ScriptReader.Errors.Any())
             {
                 Console.WriteLine("Found errors in script -->");
 
-                foreach(string line in ScriptReader.Errors)
+                foreach (string line in ScriptReader.Errors)
                 {
                     Console.WriteLine(line);
                 }
@@ -26,9 +27,6 @@ namespace ELISE
                 Console.ReadKey(true);
                 Environment.Exit(1);
             }
-
-            API.Initialize();
-            Hollerith.Initialize();
 
             string? input = null;
 
@@ -49,15 +47,13 @@ namespace ELISE
                     Console.WriteLine(logic);
                 }
 
-                int voiceDuration = 1000;
-
                 try
                 {
                     Task.Run(() =>
                     {
                         if (API.TextWithinLimit(response))
                         {
-                            API.SpeakText(response, out voiceDuration);
+                            API.GetSpeechAndSpeak(response);
                         }
                     });
                 }
@@ -96,20 +92,20 @@ namespace ELISE
 
             //const int pauseDuration = 1000 / 15;
 
-            foreach(char c in output)
+            foreach (char c in output)
             {
                 if (useRandom)
                 {
-                    System.Threading.Thread.Sleep(pauseDuration + RNG.Next(-1 * pauseDuration / 5, pauseDuration / 5));
+                    Thread.Sleep(pauseDuration + RNG.Next(-1 * pauseDuration / 5, pauseDuration / 5));
                 }
                 else
                 {
-                    System.Threading.Thread.Sleep(pauseDuration);
+                    Thread.Sleep(pauseDuration);
                 }
 
                 Console.Write(c);
             }
-            System.Threading.Thread.Sleep(pauseDuration);
+            Thread.Sleep(pauseDuration);
 
             Console.WriteLine();
         }

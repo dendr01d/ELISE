@@ -8,29 +8,23 @@ using Newtonsoft;
 
 namespace ELISE.Weilbyte
 {
+    // Credit to Welbyte for the use of his API: https://github.com/Weilbyte/tiktok-tts
+
     internal static class API
     {
+        private const string _SPEAKER = "en_us_002";
+        private const string _ENDPOINT = "https://tiktok-tts.weilnet.workers.dev";
+        private const string _DIR = "/api/generation";
+        private const int _TEXT_LIMIT = 300;
 
-        private const string Session_ID = "d2fdb9937812f581f1541cbac39b37bb";
-        private const string Speaker = "en_us_002";
-
-        private const string Endpoint = "https://tiktok-tts.weilnet.workers.dev";
-        private const string RelativeAddress = "/api/generation";
-        private const int Text_Size_Limit = 300;
-
-        private static readonly HttpClient Client;
-
-        static API()
+        private static readonly HttpClient Client = new HttpClient()
         {
-            Client = new();
-            Client.BaseAddress = new Uri(Endpoint);
-        }
-
-        public static void Initialize() { }
+            BaseAddress = new Uri(_ENDPOINT)
+        };
 
         public static bool TextWithinLimit(string text)
         {
-            return new UTF8Encoding().GetByteCount(text) <= Text_Size_Limit;
+            return new UTF8Encoding().GetByteCount(text) <= _TEXT_LIMIT;
         }
 
         private static HttpResponseMessage SendRequest(string speaker, string text)
@@ -43,7 +37,7 @@ namespace ELISE.Weilbyte
 
             var request = System.Text.Json.JsonSerializer.Serialize(reqValues, typeof(Dictionary<string, string>));
 
-            var req = new HttpRequestMessage(HttpMethod.Post, RelativeAddress);
+            var req = new HttpRequestMessage(HttpMethod.Post, _DIR);
             req.Content = new StringContent(request, Encoding.UTF8);
             req.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
@@ -74,39 +68,45 @@ namespace ELISE.Weilbyte
         {
             return Task.Run(() =>
             {
-                var response = SendRequest(Speaker, text);
+                var response = SendRequest(_SPEAKER, text);
                 return ParseResponse(response);
             });
 
         }
 
-        public static void SpeakText(string text, out int duration)
+        public static void Speak(byte[] speech)
         {
-            duration = 0;
+            using (MemoryStream ms = new(speech))
+            {
+                using (var audio = new NAudio.Wave.StreamMediaFoundationReader(ms))
+                using (var outputDevice = new NAudio.Wave.WaveOutEvent())
+                {
+                    outputDevice.Init(audio);
+                    outputDevice.Play();
 
+                    while (outputDevice.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+                    {
+                        Thread.Sleep(500);
+                    }
+                }
+            }
+        }
+
+        public static void GetSpeechAndSpeak(string text)
+        {
             if (!string.IsNullOrWhiteSpace(text))
             {
                 var request = GetSpeech(text);
                 byte[] sound = request.Result;
 
-                using (MemoryStream ms = new(sound))
-                {
-                    using (var audio = new NAudio.Wave.StreamMediaFoundationReader(ms))
-                    using (var outputDevice = new NAudio.Wave.WaveOutEvent())
-                    {
-                        duration = audio.TotalTime.Seconds / 2 * 500;
-
-                        outputDevice.Init(audio);
-                        outputDevice.Play();
-                        while (outputDevice.PlaybackState == NAudio.Wave.PlaybackState.Playing)
-                        {
-                            Thread.Sleep(500);
-                        }
-                    }
-                }
+                Speak(sound);
             }
 
         }
 
+        public static void WriteToFile(byte[] speech, string outFilePath)
+        {
+            File.WriteAllBytes(outFilePath, speech);
+        }
     }
 }
